@@ -8,22 +8,29 @@ import Input from '@/component/Input'
 import { useRouter } from 'expo-router'
 import Button from '@/component/Button'
 import { Ionicons } from '@expo/vector-icons'
+import { useAuth } from '@/contexts/authcontext'
 
 const Login = () => {
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const { signIn } = useAuth();
 
     const handleSubmit = async () => {
-        if ( !emailRef.current || !passwordRef.current) {
+        if (!emailRef.current || !passwordRef.current) {
             Alert.alert("Login", "All fields are required")
             return
         }
-        setIsLoading(true);
-        // Simulate API call
-        // await registerUser(...)
-        setIsLoading(false);
+        try {
+            setIsLoading(true);
+            await signIn(emailRef.current, passwordRef.current);
+        } catch (error: any) {
+            Alert.alert("Loginfailed Error", error.message)
+
+        } finally {
+            setIsLoading(false);
+        }
     }
     return (
         <KeyboardAvoidingView style={{ flex: 1 }}
@@ -41,7 +48,7 @@ const Login = () => {
                                 <Typo fontWeight={"800"} size={30}>Get Started</Typo>
                                 <Typo fontWeight={'700'} size={27}>Enter your details to Access</Typo>
                             </View>
-    
+
                             <Input
                                 icon={<Ionicons name="mail" size={26} color={colors.neutral300} />}
                                 placeholder='Enter email'

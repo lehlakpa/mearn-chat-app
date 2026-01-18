@@ -6,11 +6,11 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 const SplashScreen = () => {
     const router = useRouter();
-    useEffect(() => {
-        setTimeout(() => {
-            router.replace("/(auth)/Welcome");
-        }, 1500);
-    }, []);
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         router.replace("/(auth)/Welcome");
+    //     }, 1500);
+    // }, []);
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={colors.neutral900} />

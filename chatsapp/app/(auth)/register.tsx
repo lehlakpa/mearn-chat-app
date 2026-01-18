@@ -8,6 +8,7 @@ import Input from '@/component/Input'
 import { useRouter } from 'expo-router'
 import Button from '@/component/Button'
 import { Ionicons } from '@expo/vector-icons'
+import { useAuth } from '@/contexts/authcontext'
 
 const Register = () => {
     const nameRef = useRef("");
@@ -16,15 +17,21 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const {signUp}=useAuth();
+
+
     const handleSubmit = async () => {
         if (!nameRef.current || !emailRef.current || !passwordRef.current) {
             Alert.alert("Sign Up", "All fields are required")
             return
         }
-        setIsLoading(true);
-        // Simulate API call
-        // await registerUser(...)
-        setIsLoading(false);
+        try {
+            setIsLoading(true);
+            await signUp(emailRef.current, passwordRef.current, nameRef.current,"");
+        } catch (error:any) {
+            Alert.alert("Registration  Error", error.message)
+            setIsLoading(false);
+        }
     }
     return (
         <KeyboardAvoidingView style={{ flex: 1 }}

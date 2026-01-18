@@ -5,9 +5,9 @@ import ScreenWrapper from '@/component/ScreenWrapper'
 
 const home = () => {
   return (
-    <ScreenWrapper>
-      <Typo>home</Typo>
-    </screentWrapper>
+    <ScreenWrapper isModal={false} showPattern={false}>
+        <Typo>home</Typo>
+    </ScreenWrapper>
   )
 }
 
