@@ -31,7 +31,6 @@ export type BackButton = TouchableOpacityProps &
 {
 
 }
-
 export interface UserProps {
     email: string;
     name: string;
