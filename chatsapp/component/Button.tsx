@@ -1,0 +1,38 @@
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import { verticalScale } from '@/utils/styling'
+import { colors, radius } from '@/constants/theme'
+import { ButtonProps } from '@/types'
+import Loading from './Loading'
+
+
+const Button = ({
+    style, onPress, children,
+    loading = false,
+}: ButtonProps) => {
+    if (loading) {
+        return (
+            <View style={[styles.button, style, { opacity: 0.5 }]}>
+                <Loading color={colors.white} />
+            </View>
+        )
+    }
+  return (
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress} >
+      {children}
+    </TouchableOpacity>
+  )
+}
+
+export default Button
+
+const styles = StyleSheet.create({
+    button: {
+        backgroundColor:colors.primary,
+        borderRadius:radius.full,
+        borderCurve:"continuous",
+        height:verticalScale(56),
+        justifyContent:"center",
+        alignItems:"center",
+    }
+})
