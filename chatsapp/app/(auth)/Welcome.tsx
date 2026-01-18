@@ -12,7 +12,7 @@ const Welcome = () => {
     const router = useRouter();
 
     return (
-        <ScreenWrapper showPattern={true} backgroundColor={colors.neutral900} bgOpacity={0.05}>
+        <ScreenWrapper isModal={false} showPattern={true} backgroundColor={colors.neutral900} bgOpacity={0.05}>
             <View style={styles.container}>
                 <View style={{ alignItems: "center" }}>
                     <Typo color={colors.neutral100} size={43} fontWeight={"900"}>Bubbly</Typo>
@@ -34,7 +34,7 @@ const Welcome = () => {
                     <Typo color={colors.white} size={33} fontWeight={"800"}>
                         and family
                     </Typo>
-                    <Button style={{ backgroundColor: colors.white }} onPress={() => router.push("/(auth)/register")}>
+                    <Button title='get' style={{ backgroundColor: colors.white }} onPress={() => router.push("/(auth)/register")}>
                         <Typo size={23} fontWeight={"bold"} color={colors.neutral900}>Get Started</Typo>
                     </Button>
                 </View>

@@ -7,7 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 const BackButton = ({
     style, iconSize = 26, color = colors.text
-}: BackButtonProps) => {
+}: BackButtonProps & { iconSize?: number }) => {
     const router = useRouter();
     return (
         <TouchableOpacity onPress={() => router.back()} style={[styles.button, style]}>

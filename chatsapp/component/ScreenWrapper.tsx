@@ -12,7 +12,7 @@ const ScreenWrapper = ({
   isModal = false,
   bgOpacity = 1,
   backgroundColor,
-}: ScreenWrapperProps & { backgroundColor?: string }) => {
+}: ScreenWrapperProps & { backgroundColor?: string; isModal?: boolean }) => {
   let paddingTop = Platform.OS === "ios" ? height * 0.06 : 50;
   let paddingBottom = 0;
 

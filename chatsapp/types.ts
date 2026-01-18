@@ -17,14 +17,20 @@ export type TypoProps = {
     style?: TextStyle;
     textProps?: TextProps;
 };
-export type ButtonProps = TouchableOpacityProps & {
+export type BackButtonProps = TouchableOpacityProps & {
     title: string;
     buttonStyle?: ViewStyle;
     titleStyle?: TextStyle;
     onPress: () => void;
     loading?: boolean;
     children?: ReactNode;
+    iconSize?: number;
+    color?:string;
 };
+export type BackButton = TouchableOpacityProps &
+{
+
+}
 
 export interface UserProps {
     email: string;
@@ -39,7 +45,9 @@ export interface InputProps extends TextInputProps {
     inputStyle?: TextStyle;
     inputRef?: React.RefObject<TextInput>;
     label?: string;
+    iconStyle?: TextStyle;
     error?: string;
+
 }
 
 export interface DecodedTokenProps {
@@ -65,7 +73,7 @@ export type AuthContextProps = {
 export type ScreenWrapperProps = {
     style?: ViewStyle;
     children: React.ReactNode;
-    isModal7: boolean;
+    isModal: boolean;
     showPattern?: boolean;
     bgOpacity?: number;
 }

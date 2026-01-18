@@ -9,7 +9,7 @@ const Input = (props: InputProps) => {
     return (
         <View
             style={[styles.container, props.containerStyle, isFocused && { borderColor: colors.primary }]}>
-            {props.icon && props.icon()}
+            {props.icon && props.icon}
             <TextInput
                 style={[styles.input, props.inputStyle]}
                 placeholderTextColor={colors.neutral400}

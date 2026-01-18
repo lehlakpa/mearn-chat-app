@@ -29,10 +29,10 @@ const Register = () => {
     return (
         <KeyboardAvoidingView style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}>
-            <ScreenWrapper showPattern={true} backgroundColor={colors.neutral900}>
+            <ScreenWrapper isModal={false} showPattern={false} backgroundColor={colors.neutral900}>
                 <View style={styles.container}>
                     <View style={styles.header}>
-                        <BackButton iconSize={28} color={colors.white} />
+                        <BackButton iconSize={20} color={colors.white} />
                         <Typo size={17} color={colors.white}>Need some help?</Typo>
                     </View>
                     <View style={styles.content}>
@@ -40,25 +40,25 @@ const Register = () => {
                             showsVerticalScrollIndicator={false}>
                             <View style={{ gap: spacingY._20 }}>
                                 <Typo fontWeight={"800"} size={30}>Let's get started</Typo>
-                                <Typo fontWeight={"800"} size={30}>create an account to continue</Typo>
+                                <Typo fontWeight={'700'} size={27}>create an account to continue</Typo>
                             </View>
                             <Input
-                                icon={() => <Ionicons name="person" size={26} color={colors.neutral300} />}
+                                icon={<Ionicons name="person" size={26} color={colors.neutral300} />}
                                 placeholder='Enter Name'
                                 onChangeText={(value: string) => nameRef.current = value}
                             />
                             <Input
-                                icon={() => <Ionicons name="mail" size={26} color={colors.neutral300} />}
+                                icon={<Ionicons name="mail" size={26} color={colors.neutral300} />}
                                 placeholder='Enter email'
                                 onChangeText={(value: string) => emailRef.current = value}
                             />
                             <Input
-                                icon={() => <Ionicons name="lock-closed" size={26} color={colors.neutral300} />}
+                                icon={<Ionicons name="lock-closed" size={26} color={colors.neutral300} />}
                                 placeholder='Enter password'
                                 secureTextEntry
                                 onChangeText={(value: string) => passwordRef.current = value}
                             />
-                            <Button loading={isLoading} onPress={handleSubmit}>
+                            <Button loading={isLoading} title='signup' onPress={handleSubmit}>
                                 <Typo fontWeight={'bold'} color={colors.white} size={21}>Sign Up</Typo>
                             </Button>
 

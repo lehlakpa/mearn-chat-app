@@ -9,6 +9,7 @@ import Loading from './Loading'
 const Button = ({
     style, onPress, children,
     loading = false,
+
 }: ButtonProps) => {
     if (loading) {
         return (
