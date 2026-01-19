@@ -1,15 +1,16 @@
 import { colors } from "@/constants/theme";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react"; // 7.8k (gzipped: 3k)
+import React, { useEffect } from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const SplashScreen = () => {
-    const router = useRouter();
+    // const router = useRouter();
     // useEffect(() => {
-    //     setTimeout(() => {
+    //     const timer = setTimeout(() => {
     //         router.replace("/(auth)/Welcome");
     //     }, 1500);
+    //     return () => clearTimeout(timer);
     // }, []);
     return (
         <View style={styles.container}>
@@ -36,6 +37,5 @@ const styles = StyleSheet.create({
     logo: {
         height: "23%",
         aspectRatio: 1,
-
     }
 });

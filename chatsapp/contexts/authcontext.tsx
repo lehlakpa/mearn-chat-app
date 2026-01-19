@@ -2,17 +2,17 @@ import { AuthContextProps, UserProps } from "@/types";
 import { useState, useEffect, ReactNode, createContext, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { login, register as registerService } from "../services/authServices";
-import {jwtDecode}from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
 
 
 /* 🔹 JWT payload type */
 type DecodedTokenProps = {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  exp: number;
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    exp: number;
 };
 
 
@@ -29,40 +29,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserProps | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
+    
     useEffect(() => {
-        const loadToken = async () => {
-            try {
-                const storedToken = await AsyncStorage.getItem("token");
-                if (storedToken) {
-                    const decoded = jwtDecode<DecodedTokenProps>(storedToken);
-                    // Check if expired (exp is in seconds, Date.now() is in ms)
-                    if (decoded.exp * 1000 < Date.now()) {
-                        await AsyncStorage.removeItem("token");
-                        setToken(null);
-                        setUser(null);
-                    } else {
-                        setToken(storedToken);
-                        setUser({
-                            id: decoded.id,
-                            name: decoded.name,
-                            email: decoded.email,
-                            avatar: decoded.avatar,
-                        });
-                        router.replace('/(main)/home');
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to load token:", error);
-                await AsyncStorage.removeItem("token");
-                setToken(null);
-                setUser(null);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         loadToken();
     }, []);
+
+
+    const loadToken = async () => {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken) {
+            try {
+                const decoded = jwtDecode<DecodedTokenProps>(storedToken);
+                if (decoded.exp && decoded.exp < Date.now() / 1000) {
+                    await AsyncStorage.removeItem("token");
+
+                    gotoWelcome();
+                    return;
+
+                }
+                setToken(storedToken);
+                setUser({
+                    id: decoded.id,
+                    name: decoded.name,
+                    email: decoded.email,
+                    avatar: decoded.avatar,
+                });
+                GotoHome();
+
+
+            }
+            catch (error) {
+                gotoWelcome();
+                console.log("failed to decode token ", error);
+            }
+            finally {
+                setIsLoading(false);
+            }
+
+        } else {
+            gotoWelcome();
+            setIsLoading(false);
+        }
+    }
+
+    const GotoHome = () => {
+        setTimeout(()=>{
+            router.replace("/(main)/home");
+        });
+    }
+    const gotoWelcome = () => {
+        setTimeout(() => {
+            router.replace("/(auth)/Welcome");
+        }); 
+    }
+
 
     const updateToken = async (token: string) => {
         try {
@@ -107,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <AuthContext.Provider value={{ token, user, signIn, signUp, signOut, updateToken }}>
-            {!isLoading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
