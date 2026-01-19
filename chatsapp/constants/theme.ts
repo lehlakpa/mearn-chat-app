@@ -1,4 +1,4 @@
-import {scale, verticalScale} from "../utils/styling";
+import { scale, verticalScale } from "@/utils/styling";
 
 export const colors = {
   primary: "#facc15",
@@ -11,11 +11,11 @@ export const colors = {
   otherBubble: "#FFF1BF",
   myBubble: "#FFE1CC",
   green: "#16a34a",
-  neutral50: "#fafafa",
+  neutral50: "#fafaf9",
   neutral100: "#f5f5f4",
   neutral200: "#e7e5e4",
   neutral300: "#d6d3d1",
-  neutral350: "#d4cccc",
+  neutral350: "#CCCCCC",
   neutral400: "#a8a29e",
   neutral500: "#78716c",
   neutral600: "#57534e",
@@ -23,6 +23,7 @@ export const colors = {
   neutral800: "#292524",
   neutral900: "#1c1917",
 };
+
 export const spacingX = {
   _3: scale(3),
   _5: scale(5),
@@ -36,6 +37,7 @@ export const spacingX = {
   _35: scale(35),
   _40: scale(40),
 };
+
 export const spacingY = {
   _5: verticalScale(5),
   _7: verticalScale(7),
@@ -51,6 +53,7 @@ export const spacingY = {
   _50: verticalScale(50),
   _60: verticalScale(60),
 };
+
 export const radius = {
   _3: verticalScale(3),
   _6: verticalScale(6),
