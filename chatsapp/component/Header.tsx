@@ -2,12 +2,14 @@ import { StyleSheet, View } from "react-native";
 import React from "react";
 import { HeaderProps } from "@/types";
 import Typo from "./Typo";
+import { colors } from "@/constants/theme";
+
 
 const Header = ({ title = "", leftIcon, rightIcon, style }: HeaderProps) => {
     return (
         <View style={[styles.container, style]}>
             {/* Left Icon */}
-            <View>
+            <View style={styles.leftIcon}>
                 {leftIcon && (
                     <View style={leftIcon.style}>
                         {leftIcon.icon}
@@ -23,7 +25,7 @@ const Header = ({ title = "", leftIcon, rightIcon, style }: HeaderProps) => {
             )}
 
             {/* Right Icon */}
-            <View>
+            <View style={styles.rightIcon}>
                 {rightIcon && (
                     <View style={rightIcon.style}>
                         {rightIcon.icon}

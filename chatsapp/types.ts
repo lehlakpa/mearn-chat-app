@@ -17,20 +17,32 @@ export type TypoProps = {
     style?: TextStyle;
     textProps?: TextProps;
 };
-export type BackButtonProps = TouchableOpacityProps & {
-    title: string;
-    buttonStyle?: ViewStyle;
-    titleStyle?: TextStyle;
-    onPress: () => void;
-    loading?: boolean;
-    children?: ReactNode;
-    iconSize?: number;
-    color?:string;
+export type BackButtonProps = {
+    style?: ViewStyle;
+    color?: string;
+    iconSize: number;
 };
-export type BackButton = TouchableOpacityProps &
-{
+export type AvatarProps = {
+    size?: number;
+    uri?: string;
+    style?: ViewStyle;
+    isGroup?: boolean;
+}
+
+export type HeaderProps = {
+    title?: String;
+    style?: ViewStyle;
+    leftIcon?: ReactNode;
+    rightIcon?: ReactNode;
+
 
 }
+export interface UserDataProps {
+    name: string;
+    email: string;
+    avatar?: string | null;
+}
+
 export interface UserProps {
     email: string;
     name: string;

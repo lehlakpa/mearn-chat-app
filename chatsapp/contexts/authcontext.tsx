@@ -76,12 +76,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const GotoHome = () => {
         setTimeout(()=>{
-            router.replace("/(main)/home");
+            router.replace("./(main)/home");
         },1500);
     }
     const gotoWelcome = () => {
         setTimeout(() => {
-            router.replace("/(auth)/Welcome");
+            router.replace("./(auth)/Welcome");
         },1500); 
     }
 
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await login(email, password);
         await updateToken(response.token);
         await connectSocket();
-        router.replace('/(main)/home');
+        router.replace('./(main)/home');
     };
 
     const signUp = async (
@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await registerService(email, password, name, avatar || null);
         await updateToken(response.token);
         await connectSocket();
-        router.replace("/(main)/home");
+        router.replace("./(main)/home");
     };
 
     const signOut = async () => {
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         await AsyncStorage.removeItem("token");
         disconnectSocket();
-        router.replace("/(auth)/Welcome");
+        router.replace("./(auth)/Welcome");
     };
 
     return (
