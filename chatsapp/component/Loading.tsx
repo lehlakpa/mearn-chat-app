@@ -7,9 +7,9 @@ const Loading = ({size="large",
 }: ActivityIndicatorProps) => {
   return (
     <View style={{justifyContent:"center",alignItems:"center"}}>
-     <ActivityIndicator size={size} color={color} />
+     <ActivityIndicator size={size} color={colors.neutral300} />
     </View>
   )
 }
 
-export default Loading
+export default Loading;

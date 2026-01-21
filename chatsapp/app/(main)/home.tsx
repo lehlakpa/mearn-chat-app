@@ -31,7 +31,7 @@ const Home = () => {
 
           <TouchableOpacity
             style={styles.settingIcon}
-            onPress={() => router.push("/profileModel")}
+            onPress={() => router.push("/(main)/profileModel")}
           >
             <Ionicons
               name="settings-sharp"
