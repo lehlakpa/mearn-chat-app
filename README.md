@@ -1,2 +1,2 @@
 # mearn-chat-app
-creating mearn chating app
+welcome to Leh lakpa  Github 
