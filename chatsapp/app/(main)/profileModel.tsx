@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   Platform,
+  Alert,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
@@ -20,10 +21,15 @@ import { colors, spacingX, spacingY } from '@/constants/theme'
 import { scale, verticalScale } from '@/utils/styling'
 import { useAuth } from '@/contexts/authcontext'
 import { UserDataProps } from '@/types'
+import { useRouter } from 'expo-router'
+import { updateProfile } from '@/socket/socketEvents'
+import * as ImagePicker from 'expo-image-picker';
 
 const profileModel = () => {
-  const { user } = useAuth()
+  const { user, signOut, updateToken } = useAuth()
   const [loading, setLoading] = useState(false)
+  const router = useRouter();
+
 
   const [userdata, setUserdata] = useState<UserDataProps>({
     name: '',
@@ -40,15 +46,78 @@ const profileModel = () => {
       })
     }
   }, [user])
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+     // allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.5,
+    });
 
-  const handleSubmit = () => {
-    setLoading(true)
-    console.log('Updated User Data:', userdata)
-    setLoading(false)
+    console.log(result);
+
+    if (!result.canceled) {
+      setUserdata({ ...userdata, avatar: result.assets[0].uri});
+    }
+
   }
 
-  const handleLogout = () => {
-    console.log('Logout pressed')
+  useEffect(() => {
+    updateProfile(processUpdateProfile);
+    return () => {
+      updateProfile(processUpdateProfile, true);
+
+    }
+  }, [])
+
+  const processUpdateProfile = (res: any) => {
+    console.log("got response", res);
+    setLoading(false);
+
+    if (res.success) {
+      updateToken(res.data.token);
+      Alert.alert("Success", res.msg);
+    } else {
+      Alert.alert("Error", res.msg);
+    }
+
+
+  }
+
+
+  const handleSubmit = () => {
+    let { name, avatar } = userdata;
+    if (!name.trim()) {
+      Alert.alert("User", "please Enter your name");
+      return;
+    }
+    let data = {
+      name, avatar
+    }
+    setLoading(true);
+    updateProfile(data);
+  }
+
+  const showLOgoutAlert = () => {
+    Alert.alert("Confrom", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel"
+      }, {
+        text: "Logout",
+        onPress: () => handleLogout(),
+        style: "destructive"
+      }
+
+    ]);
+
+  }
+
+
+  const handleLogout = async () => {
+    router.back();
+    await signOut();
+
   }
 
   return (
@@ -62,6 +131,7 @@ const profileModel = () => {
               : null
           }
           style={{ marginVertical: spacingY._15 }}
+
         />
 
         <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
@@ -69,7 +139,7 @@ const profileModel = () => {
           <View style={styles.avatarContainer}>
             <Avatar uri={userdata.avatar ?? undefined} size={170} />
 
-            <TouchableOpacity style={styles.editIcon}>
+            <TouchableOpacity style={styles.editIcon} onPress={onPickImage}>
               <Text>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -105,6 +175,18 @@ const profileModel = () => {
 
         {/* Footer */}
         <View style={styles.footer}>
+          {!loading && (
+            <Button
+              onPress={showLOgoutAlert}
+              style={{
+                backgroundColor: colors.rose,
+                height: verticalScale(56),
+                width: verticalScale(56),
+              }}
+            >
+              <Text>Logout</Text>
+            </Button>
+          )}
           <Button
             style={{ flex: 1 }}
             onPress={handleSubmit}
@@ -112,24 +194,11 @@ const profileModel = () => {
           >
             <Text>Update</Text>
           </Button>
-
-          <Button
-            onPress={handleLogout}
-            style={{
-              backgroundColor: colors.rose,
-              height: verticalScale(56),
-              width: verticalScale(56),
-            }}
-          >
-            <Text>Logout</Text>
-          </Button>
         </View>
       </View>
     </ScreenWrapper>
   )
 }
-
-export default profileModel
 
 const styles = StyleSheet.create({
   container: {
@@ -177,3 +246,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
 })
+
+export default profileModel
