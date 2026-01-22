@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/authcontext'
 import { UserDataProps } from '@/types'
 import { useRouter } from 'expo-router'
 import { updateProfile } from '@/socket/socketEvents'
+import { uploadFileToCloudinary } from '@/services/imageService'
 import * as ImagePicker from 'expo-image-picker';
 
 const profileModel = () => {
@@ -49,15 +50,15 @@ const profileModel = () => {
   const onPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
-     // allowsEditing: true,
+      // allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
     });
 
-    console.log(result);
+    //console.log(result);
 
     if (!result.canceled) {
-      setUserdata({ ...userdata, avatar: result.assets[0].uri});
+      setUserdata({ ...userdata, avatar: result.assets[0].uri });
     }
 
   }
@@ -85,17 +86,47 @@ const profileModel = () => {
   }
 
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let { name, avatar } = userdata;
     if (!name.trim()) {
       Alert.alert("User", "please Enter your name");
       return;
     }
-    let data = {
-      name, avatar
+    let data = { name, avatar };
+
+    // If avatar is an object with a uri property (from ImagePicker), upload it
+    if (avatar && typeof avatar === 'object' && 'uri' in avatar) {
+      setLoading(true);
+      const res = await uploadFileToCloudinary({ uri: (avatar as any).uri }, "profiles");
+      //console.log(res);
+      if (res.success) {
+        data.avatar = res.data;
+      } else {
+        Alert.alert("Error", res.msg || "Image upload failed");
+        setLoading(false);
+        return;
+      }
     }
-    setLoading(true);
     updateProfile(data);
+    try {
+      if (avatar && avatar.startsWith("file://")) {
+        // upload image
+        let response = await uploadFileToCloudinary({ uri: avatar }, "profiles");
+        if (response.success) {
+          avatar = response.data;
+        } else {
+          Alert.alert("Error", response.msg || "Image upload failed");
+          setLoading(false);
+          return;
+        }
+      }
+      updateProfile(({ name, avatar }: { name: string; avatar: string | null }) => {
+        console.log("Profile update sent", { name, avatar });
+      });
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong");
+      setLoading(false);
+    }
   }
 
   const showLOgoutAlert = () => {

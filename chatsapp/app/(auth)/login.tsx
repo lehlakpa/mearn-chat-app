@@ -60,7 +60,7 @@ const Login = () => {
                                 secureTextEntry
                                 onChangeText={(value: string) => passwordRef.current = value}
                             />
-                            <Button loading={isLoading} title='signup' onPress={handleSubmit}>
+                            <Button loading={isLoading} onPress={handleSubmit}>
                                 <Typo fontWeight={'bold'} color={colors.white} size={21}>login</Typo>
                             </Button>
 
