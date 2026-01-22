@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
     leftIcon: {
-        alignSelf:"flex-start",
-        zIndex:20
+        alignSelf: "flex-start",
+        zIndex: 20
     },
     rightIcon: {
         alignSelf: "flex-end",

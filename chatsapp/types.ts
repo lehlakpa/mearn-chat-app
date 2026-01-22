@@ -22,6 +22,12 @@ export type BackButtonProps = {
     color?: string;
     iconSize: number;
 };
+export type ButtonProps = {
+  style?: ViewStyle;
+  children?: React.ReactNode;
+  onPress?: () => void;
+  loading?: boolean;
+}
 export type AvatarProps = {
     size?: number;
     uri?: string;
