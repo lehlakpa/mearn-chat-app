@@ -8,6 +8,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import ConversatationItem from "@/component/ConversatationItem";
+import Loading from "@/component/Loading";
+import Button from "@/component/Button";
 
 const Home = () => {
   const { user: currentUser, signOut } = useAuth();
@@ -15,6 +17,7 @@ const Home = () => {
 
 
   const [selectedTabs, setSelectedTabs] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -57,20 +60,20 @@ const Home = () => {
       }
     }
   ]
-  let directCOnversatations=conversatation
-  .filter((item:any)=>item.type==="direct")
-  .sort((a:any,b:any)=>{
-    const aDate=new Date(a.lastMessage.createdAt||a.createdAt);
-    const bDate=new Date(b.lastMessage.createdAt||b.createdAt);
-    return new Date(bDate).getTime()-new Date(aDate).getTime();
-  })
-  let GroupCOnversatations=conversatation
-  .filter((item:any)=>item.type==="group")
-  .sort((a:any,b:any)=>{
-    const aDate=new Date(a.lastMessage.createdAt||a.createdAt);
-    const bDate=new Date(b.lastMessage.createdAt||b.createdAt);
-    return new Date(bDate).getTime()-new Date(aDate).getTime();
-  })
+  let directCOnversatations = conversatation
+    .filter((item: any) => item.type === "direct")
+    .sort((a: any, b: any) => {
+      const aDate = new Date(a.lastMessage.createdAt || a.createdAt);
+      const bDate = new Date(b.lastMessage.createdAt || b.createdAt);
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    })
+  let GroupCOnversatations = conversatation
+    .filter((item: any) => item.type === "group")
+    .sort((a: any, b: any) => {
+      const aDate = new Date(a.lastMessage.createdAt || a.createdAt);
+      const bDate = new Date(b.lastMessage.createdAt || b.createdAt);
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    })
 
 
   return (
@@ -110,7 +113,7 @@ const Home = () => {
                   <Typo>Direct Messages</Typo>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
-                  setSelectedTabs(0)
+                  setSelectedTabs(1)
                 }} style={[styles.tabStyle, selectedTabs === 1 && styles.activeTabsStyle]}>
                   <Typo>Groups Messages</Typo>
                 </TouchableOpacity>
@@ -118,25 +121,58 @@ const Home = () => {
             </View>
             <View style={styles.conversationList}>
               {
-                selectedTabs === 0 && (
-                  selectedTabs === 0 && directCOnversatations.map((item: any, index: number) => {
-                    return(
-                      <ConversatationItem key={index} item={item}
-                      router={router}
-                      showDivider={ directCOnversatations.length !== index + 1}
-                      />
-                    )
-                  }
+                selectedTabs === 0 &&
+                directCOnversatations.map((item: any, index: number) => {
+                  return (
+                    <ConversatationItem
+                      key={index}
+                      item={item}
+                    />
+                  )
+                }
                 )
-                
+              }
+              {
+                selectedTabs === 1 &&
+                GroupCOnversatations.map((item: any, index: number) => {
+                  return (
+                    <ConversatationItem
+                      key={index}
+                      item={item}
+                    />
+                  )
+                }
                 )
               }
 
             </View>
+            {
+              !loading && selectedTabs == 0 && directCOnversatations.length == 0 && (
+                <Typo style={{ textAlign: "center" }}> You dont have any message </Typo>
+              )
+            }
+            {
+              !loading && selectedTabs == 1 && GroupCOnversatations.length == 0 && (
+                <Typo style={{ textAlign: "center" }}> You dont have any Group Messages </Typo>
+              )
+            }
+            {
+              loading && <Loading />
+            }
 
           </ScrollView>
         </View>
       </View>
+      <Button style={styles.floatingButton}
+        onPress={() => {
+          router.push({
+            pathname: "/(main)/profileModel",
+            params: { isGroup: selectedTabs }
+          })
+        }}><Typo color={colors.black}
+          fontWeight="800" size={verticalScale(24)}>Add</Typo>
+
+      </Button>
     </ScreenWrapper>
   );
 };
@@ -153,9 +189,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 20,
-  },
-  settingIcon: {
-    padding: 8,
   },
   content: {
     flex: 1,

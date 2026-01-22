@@ -28,6 +28,7 @@ export type ButtonProps = {
   onPress?: () => void;
   loading?: boolean;
 }
+
 export type AvatarProps = {
     size?: number;
     uri?: string;
