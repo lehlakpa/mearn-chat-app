@@ -9,6 +9,7 @@ import Loading from './Loading'
 const Button = ({
     style, onPress, children,
     loading = false,
+    disabled = false,
 
 }: ButtonProps) => {
     if (loading) {
@@ -19,7 +20,7 @@ const Button = ({
         )
     }
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress} >
+    <TouchableOpacity style={[styles.button, style, disabled && { opacity: 0.5 }]} onPress={disabled ? undefined : onPress} >
       {children}
     </TouchableOpacity>
   )

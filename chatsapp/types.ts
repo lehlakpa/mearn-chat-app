@@ -27,6 +27,7 @@ export type ButtonProps = {
   children?: React.ReactNode;
   onPress?: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }
 
 export type AvatarProps = {

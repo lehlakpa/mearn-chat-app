@@ -26,7 +26,7 @@ import { updateProfile } from '@/socket/socketEvents'
 import { uploadFileToCloudinary } from '@/services/imageService'
 import * as ImagePicker from 'expo-image-picker';
 
-const profileModel = () => {
+const ProfileModel = () => {
   const { user, signOut, updateToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const router = useRouter();
@@ -278,4 +278,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default profileModel
+export default ProfileModel

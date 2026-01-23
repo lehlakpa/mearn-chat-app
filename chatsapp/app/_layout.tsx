@@ -10,6 +10,7 @@ const StackLayout = () => {
     <Stack.Screen name="(auth)/login" />
     <Stack.Screen name="(auth)/register" />
     <Stack.Screen name="(main)/home" />
+     <Stack.Screen name="(main)/conversation" />
     <Stack.Screen name="(main)/profileModel" options={{ presentation: 'modal' }} />
     <Stack.Screen name='(main)/newConversationModel'
       options={{ presentation: 'modal' }} />

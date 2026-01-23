@@ -49,7 +49,7 @@ const ConversatationItem = ({ item, showDivider, router }: any) => {
                         }
                     </View>
                     <Typo size={15} color={colors.neutral400} textProps={{ numberOfLines: 1 }}>
-                        {getLastMessagecontent}
+                        {getLastMessagecontent()}
 
                     </Typo>
                 </View>
