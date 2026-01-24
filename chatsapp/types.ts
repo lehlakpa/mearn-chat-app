@@ -102,3 +102,45 @@ export type ResponseProps = {
     data?: any;
     msg?: string;
 }
+
+export type ConversationProps ={
+    _id:string;
+    type:"direct"|"indirect";
+    avatar:string | null;
+    participants:{
+        _id:string;
+        name:string;
+        avatar:string;
+        email:string;
+    }[];
+    name?:string;
+    lastMessage?:{
+        _id:string
+        content:string;
+        senderId:string;
+        type:"text"|"image"|"file";
+        createdAt:string;
+    };
+    createdAt:string;
+    updatedAt:string;
+
+};
+export type ConversationLIstItemProps={
+    item:ConversationProps;
+    showDivider?:boolean;
+    isGroup?:boolean;
+   router:Router;
+}
+export type MessageProps={
+    id:string;
+    sender:{
+        id:string;
+        name:string,
+        avatar:string| null,
+
+    },
+    content:string,
+    attachment:string|null,
+    isMe?:boolean,
+    createdAt:String
+};
