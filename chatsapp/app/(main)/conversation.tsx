@@ -1,5 +1,5 @@
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ScreenWrapper from '@/component/ScreenWrapper'
 import Typo from '@/component/Typo'
 import { useLocalSearchParams } from 'expo-router'
@@ -17,8 +17,9 @@ import { uploadFileToCloudinary } from '@/services/imageService'
 import { getMessages, newMessage } from '@/socket/socketEvents'
 import { ResponseProps } from '@/types'
 import { MessageProps } from '@/types'
+import { Image } from 'react-native'
 
-const conversation = () => {
+const Conversation = () => {
   // console.log(" got conversation",data);
   const { user: currentUser } = useAuth();
   const {
@@ -26,7 +27,7 @@ const conversation = () => {
     name,
     avatar,
     type,
-    particitants: stringifyiedParticipants
+    participants: stringifyiedParticipants
   } = useLocalSearchParams();
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<{ uri: string } | null>(null);
@@ -60,17 +61,17 @@ const conversation = () => {
   }
   useEffect(() => {
     newMessage(newMessageHandler);
-    getMessages(messageHanlder)
+    getMessages(messageHandler)
     getMessages({ conversationId });
     return () => {
       newMessage(newMessageHandler, true);
-      getMessages(messageHanlder, true);
+      getMessages(messageHandler, true);
 
     }
 
   }, [])
 
-  const messageHanlder = (res: ResponseProps) => {
+  const messageHandler = (res: ResponseProps) => {
     if (res.success) setMessages(res.data);
   }
 
@@ -79,9 +80,6 @@ const conversation = () => {
     if (res.success) {
       if (res.data.conversationId === conversationId) {
         setMessages((prev) => [res.data as MessageProps, ...prev]);
-      }
-      else {
-        Alert.alert("error", res.msg);
       }
     }
 
@@ -158,10 +156,10 @@ const conversation = () => {
             data={messages}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.messagesContent}
-            renderItem={({ item }) => {
+            renderItem={({ item }) => (
               <MessageItem item={item} isDirect={isDirect} />
-            }}
-            keyExtractor={(item) => { item.id }}
+            )}
+            keyExtractor={(item) => item.id}
           />
           <View style={styles.footer}>
             <Input value={message}
@@ -180,7 +178,7 @@ const conversation = () => {
                   {
                     selectedFile && selectedFile.uri && (
                       <Image
-                        source={selectedFile.uri}
+                        source={{ uri: selectedFile?.uri }}
                         style={styles.selectedFile}
                       />
                     )
@@ -213,7 +211,7 @@ const conversation = () => {
   )
 }
 
-export default conversation
+export default Conversation
 
 const styles = StyleSheet.create({
   container: {

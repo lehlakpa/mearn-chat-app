@@ -10,10 +10,7 @@ const Header = ({ title = "", leftIcon, rightIcon, style }: HeaderProps) => {
         <View style={[styles.container, style]}>
             {/* Left Icon */}
             <View style={styles.leftIcon}>
-                {leftIcon && (
-                    <View>
-                    </View>
-                )}
+                {leftIcon}
             </View>
 
             {/* Title */}
@@ -25,11 +22,7 @@ const Header = ({ title = "", leftIcon, rightIcon, style }: HeaderProps) => {
 
             {/* Right Icon */}
             <View style={styles.rightIcon}>
-                {rightIcon && (
-                    <View>
-                        rightIcon
-                    </View>
-                )}
+                {rightIcon}
             </View>
         </View>
     );

@@ -36,19 +36,19 @@ const NewConversationModel = () => {
         if (res.success) {
             router.back();
             router.push({
-                pathname:"(main)/conversation",
+                pathname:"/(main)/conversation",
                 params: {
                     id: res.data._id,
                     name: res.data.name,
                     avatar: res.data.avatar,
                     type: res.data.type,
-                    particitants: JSON.stringify(res.data.participants)
+                    participants: JSON.stringify(res.data.participants)
                 }
             })
         }
         else {
             console.log("Error fetching /creating conversation:", res.msg);
-            Alert.alert("erro", res.msg);
+            Alert.alert("Error", res.msg);
         }
     }
 
@@ -60,7 +60,7 @@ const NewConversationModel = () => {
 
         return () => {
             getContacts(processGetContacts, true);
-            newConversation(processGetContacts, true)
+            newConversation(processNewConversation, true)
 
         }
     }, [])
@@ -134,7 +134,7 @@ const NewConversationModel = () => {
 
         } catch (error) {
             console.log("Error Creating group:", error);
-            Alert.alert("error", error.message);
+            Alert.alert("Error",error.message);
 
 
         }

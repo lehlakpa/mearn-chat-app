@@ -7,18 +7,19 @@ import moment from 'moment'
 import { TouchableOpacity } from 'react-native'
 import { ConversationLIstItemProps } from '@/types'
 import { useAuth } from '@/contexts/authcontext'
+import { useRouter } from 'expo-router'
 
 
-const ConversatationItem = ({ item, showDivider, router }: ConversationLIstItemProps) => {
+const ConversatationItem = ({ item, showDivider }: ConversationLIstItemProps) => {
 
-
+    const router = useRouter();
     const { user: currentUser } = useAuth();
     //console.log("conversation item",item);
 
     const lastMessage: any = item.lastMessage;
     const isDirect = item.type == "direct";
     let avatar = item.avatar;
-    const otherParticipants = isDirect ? item.participants.find(p => p._id !== currentUser?.id) : null;
+    const otherParticipants = isDirect ? item.participants?.find(p => p._id !== currentUser?.id) : null;
 
     if (isDirect && otherParticipants) avatar = otherParticipants.avatar;
 
@@ -27,8 +28,8 @@ const ConversatationItem = ({ item, showDivider, router }: ConversationLIstItemP
 
 
     const getLastMessagecontent = () => {
-        if (!lastMessage?.createdAt) return "say heluu";
-        return lastMessage?.attachment ? "image" : lastMessage?.content;
+        if (!lastMessage?.createdAt) return "Say Hi 👋";
+        return lastMessage?.attachement ? "Image" : lastMessage?.content;
 
     }
 
@@ -53,7 +54,7 @@ const ConversatationItem = ({ item, showDivider, router }: ConversationLIstItemP
                 name: item.name,
                 avatar: item.avatar,
                 type: item.type,
-                particitants: JSON.stringify(item.participants)
+                participants: JSON.stringify(item.participants)
             }
         })
     }
@@ -62,7 +63,7 @@ const ConversatationItem = ({ item, showDivider, router }: ConversationLIstItemP
             <TouchableOpacity style={styles.container}
                 onPress={openConversation}>
                 <View>
-                    <Avatar uri={avatar} size={47} isGroup={!isDirect} />
+                    <Avatar uri={avatar||undefined} size={47} isGroup={!isDirect} />
                 </View>
 
                 <View style={{ flex: 1 }}>

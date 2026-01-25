@@ -34,7 +34,7 @@ const Welcome = () => {
                     <Typo color={colors.white} size={33} fontWeight={"800"}>
                         and family
                     </Typo>
-                    <Button title='get' style={{ backgroundColor: colors.white }} onPress={() => router.push("/(auth)/register")}>
+                    <Button style={{ backgroundColor: colors.white }} onPress={() => router.push("/(auth)/register")}>
                         <Typo size={23} fontWeight={"bold"} color={colors.neutral900}>Get Started</Typo>
                     </Button>
                 </View>

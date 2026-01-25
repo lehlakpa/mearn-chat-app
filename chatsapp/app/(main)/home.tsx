@@ -18,7 +18,7 @@ const Home = () => {
   const router = useRouter();
   const [selectedTabs, setSelectedTabs] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [conversatation, setConversation] = useState<ConversationProps>([]);
+  const [conversations, setConversations] = useState<ConversationProps[]>([]);
 
   useEffect(() => {
     getConversations(processConversation);
@@ -38,9 +38,11 @@ const Home = () => {
   const newMessageHandler = (res: ResponseProps) => {
     if(res.success){
       let conversationId = res.data.conversationId;
-      setConversation((prev) => {
+      setConversations((prev) => {
         let updatedConversations=prev.map((item)=>{
-          if(item._id==conversationId) item.lastMessage=res.data;
+          if(item._id==conversationId) {
+            return {...item, lastMessage: res.data};
+          }
           return  item
         })
         return updatedConversations;
@@ -52,13 +54,13 @@ const Home = () => {
   const processConversation = (res: ResponseProps) => {
     // console.log("res",res)
     if (res.success) {
-      setConversation(res.data);
+      setConversations(res.data);
 
     }
   }
   const newConversationHandler = (res: ResponseProps) => {
     if (res.success && res.data?.isNew) {
-      setConversation((prev) => [...prev, res.data.]);
+      setConversations((prev) => [...prev, res.data]);
 
     }
   }
@@ -68,7 +70,7 @@ const Home = () => {
   // const handleLogout = async () => {
   //   await signOut();
   // };
-  // const conversatation = [
+  // const conversations = [
   //   {
   //     name: "lakpaaa",
   //     type: "direct",
@@ -106,14 +108,14 @@ const Home = () => {
   //     }
   //   }
   // ]
-  let directCOnversatations = conversatation
+  let directConversations = conversations
     .filter((item: ConversationProps) => item.type === "direct")
     .sort((a: ConversationProps, b: ConversationProps) => {
       const aDate = new Date(a?.lastMessage.createdAt || a.createdAt);
       const bDate = new Date(b?.lastMessage.createdAt || b.createdAt);
       return new Date(bDate).getTime() - new Date(aDate).getTime();
     })
-  let GroupCOnversatations = conversatation
+  let groupConversations = conversations
     .filter((item: ConversationProps) => item.type === "group")
     .sort((a: ConversationProps, b: ConversationProps) => {
       const aDate = new Date(a?.lastMessage.createdAt || a.createdAt);
@@ -168,7 +170,7 @@ const Home = () => {
             <View style={styles.conversationList}>
               {
                 selectedTabs === 0 &&
-                directCOnversatations.map((item: ConversationProps, index: number) => {
+                directConversations.map((item: ConversationProps, index: number) => {
                   return (
                     <ConversatationItem
                       key={index}
@@ -180,7 +182,7 @@ const Home = () => {
               }
               {
                 selectedTabs === 1 &&
-                GroupCOnversatations.map((item: any, index: number) => {
+                groupConversations.map((item: any, index: number) => {
                   return (
                     <ConversatationItem
                       key={index}
@@ -193,12 +195,12 @@ const Home = () => {
 
             </View>
             {
-              !loading && selectedTabs == 0 && directCOnversatations.length == 0 && (
+              !loading && selectedTabs == 0 && directConversations.length == 0 && (
                 <Typo style={{ textAlign: "center" }}> You dont have any message </Typo>
               )
             }
             {
-              !loading && selectedTabs == 1 && GroupCOnversatations.length == 0 && (
+              !loading && selectedTabs == 1 && groupConversations.length == 0 && (
                 <Typo style={{ textAlign: "center" }}> You dont have any Group Messages </Typo>
               )
             }
@@ -212,7 +214,7 @@ const Home = () => {
       <Button style={styles.floatingButton}
         onPress={() => {
           router.push({
-            pathname: "/(main)/profileModel",
+            pathname: "/(main)/newConversationModel",
             params: { isGroup: selectedTabs }
           })
         }}><Typo color={colors.black}

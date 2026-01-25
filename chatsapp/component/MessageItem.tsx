@@ -15,9 +15,10 @@ const MessageItem = (
     const { user: currentUser } = useAuth();
     const isMe = currentUser?.id === item?.sender?.id;
 
-    const FormatedDate =moment(item.createdAt).isSame(moment(), "day")?
-    moment(item.createdAt).format("h:mm A"):
-    moment(item.createdAt).format("DD/MM/YY");
+    const date = item?.createdAt;
+    const FormatedDate = date ? (moment(date).isSame(moment(), "day")?
+    moment(date).format("h:mm A"):
+    moment(date).format("DD/MM/YY")) : "";
 
     return (
         <View style={[styles.messageContainer, isMe && styles.myMessage, !isMe && styles.theirMessage]}>
@@ -25,15 +26,15 @@ const MessageItem = (
                 <Avatar size={30} uri={item?.sender?.avatar} style={styles.messageAvatar} />
             )}
             <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.theirBubble]} >
-                {!isMe && (
+                {!isMe && !isDirect && (
                     <Typo color={colors.neutral900} size={13}>
                         {item.sender.name}
                     </Typo>
                 )}
                 {
-                    item.attachment && (
+                    item.attachement && (
                         <Image
-                            source={{ uri: item.attachment }}
+                            source={{ uri: item.attachement }}
                             contentFit='cover'
                             style={styles.attachement}
                             transition={100}

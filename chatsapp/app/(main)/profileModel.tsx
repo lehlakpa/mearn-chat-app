@@ -89,25 +89,11 @@ const ProfileModel = () => {
   const handleSubmit = async () => {
     let { name, avatar } = userdata;
     if (!name.trim()) {
-      Alert.alert("User", "please Enter your name");
+      Alert.alert("User", "Please enter your name");
       return;
     }
-    let data = { name, avatar };
+    setLoading(true);
 
-    // If avatar is an object with a uri property (from ImagePicker), upload it
-    if (avatar && typeof avatar === 'object' && 'uri' in avatar) {
-      setLoading(true);
-      const res = await uploadFileToCloudinary({ uri: (avatar as any).uri }, "profiles");
-      //console.log(res);
-      if (res.success) {
-        data.avatar = res.data;
-      } else {
-        Alert.alert("Error", res.msg || "Image upload failed");
-        setLoading(false);
-        return;
-      }
-    }
-    updateProfile(data);
     try {
       if (avatar && avatar.startsWith("file://")) {
         // upload image
@@ -120,17 +106,15 @@ const ProfileModel = () => {
           return;
         }
       }
-      updateProfile(({ name, avatar }: { name: string; avatar: string | null }) => {
-        console.log("Profile update sent", { name, avatar });
-      });
+      updateProfile({ name, avatar });
     } catch (error) {
       Alert.alert("Error", "Something went wrong");
       setLoading(false);
     }
   }
 
-  const showLOgoutAlert = () => {
-    Alert.alert("Confrom", "Are you sure you want to logout?", [
+  const showLogoutAlert = () => {
+    Alert.alert("Confirm", "Are you sure you want to logout?", [
       {
         text: "Cancel",
         style: "cancel"
@@ -208,7 +192,7 @@ const ProfileModel = () => {
         <View style={styles.footer}>
           {!loading && (
             <Button
-              onPress={showLOgoutAlert}
+              onPress={showLogoutAlert}
               style={{
                 backgroundColor: colors.rose,
                 height: verticalScale(56),
