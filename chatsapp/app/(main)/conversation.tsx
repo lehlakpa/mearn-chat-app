@@ -14,7 +14,7 @@ import Input from '@/component/Input'
 import * as ImagePicker from 'expo-image-picker';
 import Loading from '@/component/Loading'
 import { uploadFileToCloudinary } from '@/services/imageService'
-import { getMessages, newMessage } from '@/socket/socketEvents'
+import { getConversations, getMessages, newMessage } from '@/socket/socketEvents'
 import { ResponseProps } from '@/types'
 import { MessageProps } from '@/types'
 import { Image } from 'react-native'
@@ -24,25 +24,33 @@ const Conversation = () => {
   const { user: currentUser } = useAuth();
   const {
     id: conversationId,
-    name,
-    avatar,
-    type,
+    name: paramName,
+    avatar: paramAvatar,
+    type: paramType,
     participants: stringifyiedParticipants
   } = useLocalSearchParams();
+  const [conversation, setConversation] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<{ uri: string } | null>(null);
   const [messages, setMessages] = useState<MessageProps[]>([])
 
-  const participants = JSON.parse(stringifyiedParticipants as string);
+  const currentConversation = conversation || {
+    name: paramName,
+    avatar: paramAvatar,
+    type: paramType,
+    participants: stringifyiedParticipants ? JSON.parse(stringifyiedParticipants as string) : []
+  };
+
+  const participants = currentConversation.participants;
   const [loading, setloading] = useState(false);
 
-  let conversationAvatar = avatar;
-  let isDirect = type == "direct";
+  let conversationAvatar = currentConversation.avatar;
+  let isDirect = currentConversation.type == "direct";
   const otherParticipants = isDirect ? participants.find((p: any) => p._id !== currentUser?.id) : null;
 
   if (isDirect && otherParticipants) conversationAvatar = otherParticipants.avatar;
 
-  let conversatiolnName = isDirect ? otherParticipants?.name : name;
+  let conversatiolnName = isDirect ? otherParticipants?.name : currentConversation.name;
   const onPickFile = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
@@ -63,6 +71,17 @@ const Conversation = () => {
     newMessage(newMessageHandler);
     getMessages(messageHandler)
     getMessages({ conversationId });
+
+    // Fetch conversation details if missing (e.g. on reload)
+    if (!paramName || !stringifyiedParticipants) {
+      getConversations((res: ResponseProps) => {
+        if (res.success) {
+          const found = res.data.find((c: any) => c._id == conversationId);
+          if (found) setConversation(found);
+        }
+      });
+    }
+
     return () => {
       newMessage(newMessageHandler, true);
       getMessages(messageHandler, true);
@@ -128,7 +147,7 @@ const Conversation = () => {
   }
 
   return (
-    <ScreenWrapper isModal={true} showPattern={true} bgOpacity={0.5}>
+    <ScreenWrapper isModal={false} showPattern={false} bgOpacity={0.5}>
       <KeyboardAvoidingView behavior={
         Platform.OS === "ios" ? "padding" : "height"
       } style={styles.container
@@ -138,8 +157,7 @@ const Conversation = () => {
           leftIcon={
             <View style={styles.headerLeft}>
               <BackButton iconSize={24} color={colors.black} />
-              <Avatar size={40} uri={conversationAvatar as string}
-                isGroup={type == "group"} />
+              <Avatar size={40} uri={conversationAvatar as string} isGroup={!isDirect} />
               <Typo color={colors.white} fontWeight={"500"} size={22}>
                 {conversatiolnName}
               </Typo>
@@ -147,14 +165,15 @@ const Conversation = () => {
           }
           rightIcon={
             <TouchableOpacity>
-              <Typo fontWeight={"bold"} color={colors.white}>dotsThreeoutlinevertical</Typo>
+              <Typo fontWeight={"bold"} color={colors.black}>|</Typo>
             </TouchableOpacity>
           } />
         {/* messages */}
         <View style={styles.container}>
           <FlatList
             data={messages}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
+            inverted={true}
             contentContainerStyle={styles.messagesContent}
             renderItem={({ item }) => (
               <MessageItem item={item} isDirect={isDirect} />
@@ -216,6 +235,7 @@ export default Conversation
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: spacingY._20
   },
   header: {
     paddingHorizontal: spacingX._15,

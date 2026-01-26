@@ -25,8 +25,10 @@ const NewConversationModel = () => {
     const [contacts, setContacts] = useState<any[]>([])
 
     const processGetContacts = (res: any) => {
-        if (res.success) {
-            setContacts(res.data);
+        if (res.success && currentUser) {
+            // Filter out the current user from the contacts list
+            const filteredContacts = res.data.filter((contact: any) => (contact._id || contact.id) !== currentUser.id);
+            setContacts(filteredContacts);
         }
     };
 
@@ -88,11 +90,12 @@ const NewConversationModel = () => {
 
     }
     const toggleParticipants = (user: any) => {
+        const userId = user._id || user.id;
         setSelectedParticipants((prev: any) => {
-            if (prev.includes(user.id)) {
-                return prev.filter((id: string) => id !== user.id);
+            if (prev.includes(userId)) {
+                return prev.filter((id: string) => id !== userId);
             }
-            return [...prev, user.id];
+            return [...prev, userId];
         })
     }
     const onSelectUser = (user: any) => {
@@ -100,6 +103,7 @@ const NewConversationModel = () => {
             Alert.alert("Authentication", "Please login to continue")
             return
         }
+        const userId = user._id || user.id;
         if (isGroupMode) {
             toggleParticipants(user);
 
@@ -107,7 +111,7 @@ const NewConversationModel = () => {
             //start the ne conversation 
             newConversation({
                 type: "direct",
-                participants: [currentUser.id, user.id],
+                participants: [currentUser.id, userId],
 
             });
         }
@@ -128,11 +132,12 @@ const NewConversationModel = () => {
             }
             newConversation({
                 type: "group",
+                name: groupName,
                 participants: [currentUser.id, ...selectedParticipants],
                 avatar,
             })
 
-        } catch (error) {
+        } catch (error: any) {
             console.log("Error Creating group:", error);
             Alert.alert("Error",error.message);
 
@@ -146,7 +151,7 @@ const NewConversationModel = () => {
     }
 
     return (
-        <ScreenWrapper isModal={true}>
+        <ScreenWrapper isModal={false} showPattern={false}>
             <View style={styles.container}>
                 <Header title={isGroupMode ? "new Group" : "select User"}
                     leftIcon={<BackButton iconSize={24} color={colors.black} />}
@@ -172,7 +177,8 @@ const NewConversationModel = () => {
 
                     {
                         contacts.map((user: any, index) => {
-                            const isSelected = selectedParticipants.includes(user.id);
+                            const userId = user._id || user.id;
+                            const isSelected = selectedParticipants.includes(userId);
 
                             return (
                                 <TouchableOpacity key={index} style={[styles.contactRow, isSelected && styles.selectedContact]}

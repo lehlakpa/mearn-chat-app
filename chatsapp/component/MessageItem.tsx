@@ -13,7 +13,7 @@ const MessageItem = (
     { item, isDirect }: { item: MessageProps, isDirect: boolean }) => {
 
     const { user: currentUser } = useAuth();
-    const isMe = currentUser?.id === item?.sender?.id;
+    const isMe = currentUser?.id === item?.sender?.id || currentUser?.id === item?.sender?._id;
 
     const date = item?.createdAt;
     const FormatedDate = date ? (moment(date).isSame(moment(), "day")?
@@ -28,7 +28,7 @@ const MessageItem = (
             <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.theirBubble]} >
                 {!isMe && !isDirect && (
                     <Typo color={colors.neutral900} size={13}>
-                        {item.sender.name}
+                        {item.sender?.name}
                     </Typo>
                 )}
                 {

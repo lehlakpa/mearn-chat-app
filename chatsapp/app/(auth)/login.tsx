@@ -3,12 +3,13 @@ import React, { useRef, useState } from 'react'
 import ScreenWrapper from '@/component/ScreenWrapper'
 import Typo from '@/component/Typo'
 import { colors, radius, spacingX, spacingY } from '@/constants/theme'
-import{BackButton} from '@/component/BackButton'
+import { BackButton } from '@/component/BackButton'
 import Input from '@/component/Input'
 import { useRouter } from 'expo-router'
 import Button from '@/component/Button'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/contexts/authcontext'
+import { green } from 'react-native-reanimated/lib/typescript/Colors'
 
 const Login = () => {
     const emailRef = useRef("");
@@ -34,32 +35,37 @@ const Login = () => {
     }
     return (
         <KeyboardAvoidingView style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}>
-            <ScreenWrapper isModal={false} showPattern={false} backgroundColor={colors.neutral900}>
+            behavior={Platform.OS === "ios" ? "padding" : "height"} enabled={false} >
+            <ScreenWrapper isModal={false} showPattern={false}>
                 <View style={styles.container}>
-                    <View style={styles.header}>
-                        <BackButton iconSize={20} color={colors.white} />
-                        <Typo size={17} color={colors.white}>Forgot your password</Typo>
-                    </View>
                     <View style={styles.content}>
                         <ScrollView contentContainerStyle={styles.form}
                             showsVerticalScrollIndicator={false}>
-                            <View style={{ gap: spacingY._20 }}>
-                                <Typo fontWeight={"800"} size={30}>Get Started</Typo>
-                                <Typo fontWeight={'700'} size={27}>Enter your details to Access</Typo>
+                            <View style={{ gap: spacingY._30 }}>
+                                <Typo fontWeight={"800"} color={colors.green} size={30}>Get Started</Typo>
+                                <Typo style={{ paddingTop: 1, includeFontPadding: false }} fontWeight={'400'} size={14}>Enter your details to Access</Typo>
                             </View>
 
-                            <Input
-                                icon={<Ionicons name="mail" size={26} color={colors.neutral300} />}
-                                placeholder='Enter email'
-                                onChangeText={(value: string) => emailRef.current = value}
-                            />
-                            <Input
-                                icon={<Ionicons name="lock-closed" size={26} color={colors.neutral300} />}
-                                placeholder='Enter password'
-                                secureTextEntry
-                                onChangeText={(value: string) => passwordRef.current = value}
-                            />
+
+                            <View>
+                                <Typo>Email</Typo>
+                                <Input
+                                    icon={<Ionicons name="mail" size={26} color={colors.neutral300} />}
+                                    placeholder="Enter email"
+                                    onChangeText={(value: string) => (emailRef.current = value)}
+                                />
+                            </View>
+
+
+                            <View>
+                                <Typo>Password</Typo>
+                                <Input
+                                    icon={<Ionicons name="lock-closed" size={26} color={colors.neutral300} />}
+                                    placeholder='Enter password'
+                                    secureTextEntry
+                                    onChangeText={(value: string) => passwordRef.current = value}
+                                />
+                            </View>
                             <Button loading={isLoading} onPress={handleSubmit}>
                                 <Typo fontWeight={'bold'} color={colors.white} size={21}>login</Typo>
                             </Button>
@@ -67,11 +73,14 @@ const Login = () => {
                             <View style={styles.footer}>
                                 <Typo size={14}>Dont have an account ?</Typo>
                                 <Pressable onPress={() => router.push("/(auth)/register")}>
-                                    <Typo size={14} fontWeight={"bold"} color={colors.primaryDark}>signup</Typo>
+                                    <Typo size={14} fontWeight={"bold"} color={colors.primaryDark}>Signup</Typo>
                                 </Pressable>
                             </View>
-
+                            <View style={styles.header}>
+                                <Typo size={17} color={colors.black}>Forgot your password</Typo>
+                            </View>
                         </ScrollView>
+
                     </View>
                 </View>
             </ScreenWrapper>
@@ -88,30 +97,28 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     header: {
-        paddingHorizontal: spacingX._20,
-        paddingTop: spacingY._10,
-        paddingBottom: spacingY._30,
         flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: "center",
         alignItems: "center",
+        gap: 5,
 
     },
     content: {
         flex: 1,
         backgroundColor: colors.white,
-        borderTopLeftRadius: radius._50,
-        borderTopRightRadius: radius._50,
         paddingHorizontal: spacingX._20,
-        paddingTop: spacingY._20,
     },
     form: {
         flex: 1,
         gap: spacingY._20,
+        justifyContent: "center",
+        paddingBottom: spacingY._30
     },
     footer: {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         gap: 5,
+        paddingTop: spacingY._30,
     }
 })
