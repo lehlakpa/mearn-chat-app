@@ -1,82 +1,100 @@
-import { Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import ScreenWrapper from '@/component/ScreenWrapper'
-import Typo from '@/component/Typo'
-import { useLocalSearchParams } from 'expo-router'
-import { useAuth } from '@/contexts/authcontext'
-import { colors, radius, spacingX, spacingY } from '@/constants/theme'
-import { scale, verticalScale } from '@/utils/styling'
-import Header from '@/component/Header'
-import { BackButton } from '@/component/BackButton'
-import { Avatar } from '@/component/Avatar'
-import MessageItem from '@/component/MessageItem'
-import Input from '@/component/Input'
-import * as ImagePicker from 'expo-image-picker';
-import Loading from '@/component/Loading'
-import { uploadFileToCloudinary } from '@/services/imageService'
-import { getConversations, getMessages, newMessage } from '@/socket/socketEvents'
-import { ResponseProps } from '@/types'
-import { MessageProps } from '@/types'
-import { Image } from 'react-native'
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Image,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import ScreenWrapper from "@/component/ScreenWrapper";
+import Typo from "@/component/Typo";
+import { useLocalSearchParams } from "expo-router";
+import { useAuth } from "@/contexts/authcontext";
+import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { scale, verticalScale } from "@/utils/styling";
+import Header from "@/component/Header";
+import { BackButton } from "@/component/BackButton";
+import { Avatar } from "@/component/Avatar";
+import MessageItem from "@/component/MessageItem";
+import Input from "@/component/Input";
+import * as ImagePicker from "expo-image-picker";
+import Loading from "@/component/Loading";
+import { uploadFileToCloudinary } from "@/services/imageService";
+import {
+  getConversations,
+  getMessages,
+  newMessage,
+} from "@/socket/socketEvents";
+import { ResponseProps, MessageProps } from "@/types";
 
 const Conversation = () => {
-  // console.log(" got conversation",data);
   const { user: currentUser } = useAuth();
+
   const {
     id: conversationId,
     name: paramName,
     avatar: paramAvatar,
     type: paramType,
-    participants: stringifyiedParticipants
+    participants: stringifyiedParticipants,
   } = useLocalSearchParams();
+
   const [conversation, setConversation] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<{ uri: string } | null>(null);
-  const [messages, setMessages] = useState<MessageProps[]>([])
+  const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const currentConversation = conversation || {
     name: paramName,
     avatar: paramAvatar,
     type: paramType,
-    participants: stringifyiedParticipants ? JSON.parse(stringifyiedParticipants as string) : []
+    participants: stringifyiedParticipants
+      ? JSON.parse(stringifyiedParticipants as string)
+      : [],
   };
 
   const participants = currentConversation.participants;
-  const [loading, setloading] = useState(false);
+  const isDirect = currentConversation.type === "direct";
 
-  let conversationAvatar = currentConversation.avatar;
-  let isDirect = currentConversation.type == "direct";
-  const otherParticipants = isDirect ? participants.find((p: any) => p._id !== currentUser?.id) : null;
+  const otherParticipant = isDirect
+    ? participants.find((p: any) => p._id !== currentUser?.id)
+    : null;
 
-  if (isDirect && otherParticipants) conversationAvatar = otherParticipants.avatar;
+  const conversationAvatar = isDirect
+    ? otherParticipant?.avatar
+    : currentConversation.avatar;
 
-  let conversatiolnName = isDirect ? otherParticipants?.name : currentConversation.name;
+  const conversationName = isDirect
+    ? otherParticipant?.name
+    : currentConversation.name;
+
+  // 📁 Pick Image
   const onPickFile = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
-      // allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 0.6,
     });
-
-    //console.log(result);
 
     if (!result.canceled) {
       setSelectedFile(result.assets[0]);
     }
+  };
 
-
-  }
+  // 🔌 Socket listeners
   useEffect(() => {
     newMessage(newMessageHandler);
-    getMessages(messageHandler)
+    getMessages(messageHandler);
     getMessages({ conversationId });
 
-    // Fetch conversation details if missing (e.g. on reload)
     if (!paramName || !stringifyiedParticipants) {
       getConversations((res: ResponseProps) => {
         if (res.success) {
-          const found = res.data.find((c: any) => c._id == conversationId);
+          const found = res.data.find(
+            (c: any) => c._id === conversationId
+          );
           if (found) setConversation(found);
         }
       });
@@ -85,203 +103,219 @@ const Conversation = () => {
     return () => {
       newMessage(newMessageHandler, true);
       getMessages(messageHandler, true);
-
-    }
-
-  }, [])
+    };
+  }, []);
 
   const messageHandler = (res: ResponseProps) => {
     if (res.success) setMessages(res.data);
-  }
+  };
 
   const newMessageHandler = (res: ResponseProps) => {
-    setloading(false);
-    if (res.success) {
-      if (res.data.conversationId === conversationId) {
-        setMessages((prev) => [res.data as MessageProps, ...prev]);
-      }
+    setLoading(false);
+    if (res.success && res.data.conversationId === conversationId) {
+      setMessages((prev) => [res.data as MessageProps, ...prev]);
     }
+  };
 
-  }
+  // 📤 Send Message
   const onSend = async () => {
     if (!message.trim() && !selectedFile) return;
-
     if (!currentUser) return;
-    setloading(true);
+
+    setLoading(true);
 
     try {
-      let attachement = null;
+      let attachment = null;
+
       if (selectedFile) {
-        const uploadResult = await uploadFileToCloudinary(
+        const upload = await uploadFileToCloudinary(
           selectedFile,
-          "message-attachements"
+          "message-attachments"
         );
-        if (uploadResult.success) {
-          attachement = uploadResult.data;
+
+        if (upload.success) {
+          attachment = upload.data;
         } else {
-          setloading(false);
-          Alert.alert("Error", "could not send the image");
+          Alert.alert("Error", "Image upload failed");
+          setLoading(false);
+          return;
         }
       }
-      // console.log("attachement",attachement)
 
       newMessage({
-        conversationId, sender: {
-          id: currentUser?.id,
+        conversationId,
+        sender: {
+          id: currentUser.id,
           name: currentUser.name,
-          avatar: currentUser.avatar
+          avatar: currentUser.avatar,
         },
         content: message.trim(),
-        attachement
+        attachement: attachment,
       });
+
       setMessage("");
       setSelectedFile(null);
-    } catch (error) {
-      console.log("error sending message", error);
-      Alert.alert("Error", "Failed to send Message")
-
+    } catch (err) {
+      Alert.alert("Error", "Failed to send message");
     } finally {
-      setloading(false);
+      setLoading(false);
     }
-
-  }
+  };
 
   return (
-    <ScreenWrapper isModal={false} showPattern={false} bgOpacity={0.5}>
-      <KeyboardAvoidingView behavior={
-        Platform.OS === "ios" ? "padding" : "height"
-      } style={styles.container
-      }>
-        {/* header */}
-        <Header style={styles.header}
+    <ScreenWrapper isModal={false} showPattern={false}bgOpacity={0.5}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        {/* HEADER */}
+        <Header
+          style={styles.header}
           leftIcon={
             <View style={styles.headerLeft}>
-              <BackButton iconSize={24} color={colors.black} />
-              <Avatar size={40} uri={conversationAvatar as string} isGroup={!isDirect} />
-              <Typo color={colors.white} fontWeight={"500"} size={22}>
-                {conversatiolnName}
-              </Typo>
+              <BackButton iconSize={22} color={colors.black} />
+              <Avatar
+                size={38}
+                uri={conversationAvatar}
+                isGroup={!isDirect}
+              />
+              <View>
+                <Typo size={16} fontWeight="600">
+                  {conversationName}
+                </Typo>
+                {isDirect && (
+                  <Typo size={12} color={colors.neutral500}>
+                    online
+                  </Typo>
+                )}
+              </View>
             </View>
           }
           rightIcon={
             <TouchableOpacity>
-              <Typo fontWeight={"bold"} color={colors.black}>|</Typo>
+              <Typo size={22}>⋮</Typo>
             </TouchableOpacity>
-          } />
-        {/* messages */}
-        <View style={styles.container}>
-          <FlatList
-            data={messages}
-            showsVerticalScrollIndicator={true}
-            inverted={true}
-            contentContainerStyle={styles.messagesContent}
-            renderItem={({ item }) => (
-              <MessageItem item={item} isDirect={isDirect} />
-            )}
-            keyExtractor={(item) => item.id}
-          />
-          <View style={styles.footer}>
-            <Input value={message}
-              onChangeText={setMessage}
-              containerStyle={
-                {
-                  paddingLeft: spacingX._10,
-                  paddingRight: scale(65),
-                  borderWidth: 0,
-                }}
-              placeholder="Type a message"
-              icon={
-                <TouchableOpacity style={styles.inputIcon} onPress={onPickFile}>
-                  <Typo color={colors.black}
-                    fontWeight={"bold"} size={24}>files</Typo>
-                  {
-                    selectedFile && selectedFile.uri && (
-                      <Image
-                        source={{ uri: selectedFile?.uri }}
-                        style={styles.selectedFile}
-                      />
-                    )
-                  }
-                </TouchableOpacity>
-              }
+          }
+        />
 
+        {/* MESSAGES */}
+        <FlatList
+          data={messages}
+          inverted
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.messagesContent}
+          renderItem={({ item }) => (
+            <MessageItem item={item} isDirect={isDirect} />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+
+        {/* IMAGE PREVIEW */}
+        {selectedFile && (
+          <View style={styles.previewContainer}>
+            <Image
+              source={{ uri: selectedFile.uri }}
+              style={styles.previewImage}
             />
-            <View style={styles.inputRightIcon}>
-              <TouchableOpacity style={styles.inputIcon} onPress={onSend}>
-                {
-                  loading ? (
-                    <Loading size="small" color={colors.black} />
-                  ) : (
-                    <Typo color={colors.black}
-                      fontWeight={'bold'}
-                      size={verticalScale(22)}>send</Typo>
-
-                  )
-                }
-
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => setSelectedFile(null)}>
+              <Typo size={16}>✕</Typo>
+            </TouchableOpacity>
           </View>
+        )}
+
+        {/* INPUT BAR */}
+        <View style={styles.inputBar}>
+          <TouchableOpacity onPress={onPickFile} style={styles.attachBtn}>
+            <Typo size={22}>＋</Typo>
+          </TouchableOpacity>
+
+          <Input
+            value={message}
+            onChangeText={setMessage}
+            placeholder="Type a message"
+            containerStyle={styles.textInput}
+          />
+
+          <TouchableOpacity
+            style={styles.sendBtn}
+            onPress={onSend}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loading size="small" />
+            ) : (
+              <Typo size={14} fontWeight="600">
+                Send
+              </Typo>
+            )}
+          </TouchableOpacity>
         </View>
-
-
       </KeyboardAvoidingView>
     </ScreenWrapper>
-  )
-}
+  );
+};
 
-export default Conversation
+export default Conversation;
+
+/* ===================== STYLES ===================== */
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: spacingY._20
-  },
   header: {
     paddingHorizontal: spacingX._15,
-    paddingTop: spacingY._10,
-    paddingBottom: spacingY._15,
+    paddingVertical: spacingY._12,
   },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacingX._12,
-
-  },
-  inputRightIcon: {
-    position: "absolute",
-    right: scale(10),
-    top: verticalScale(15),
-    paddingLeft: spacingY._12,
-    borderLeftColor: colors.neutral300
-  },
-  selectedFile: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderTopEndRadius: radius.full,
-    borderCurve: "continuous",
-    overflow: "hidden",
-    paddingHorizontal: spacingX._15,
-  },
-  inputIcon: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.full,
-    padding: 8
-  },
-  footer: {
-    paddingTop: spacingY._7,
-    paddingBottom: spacingY._10
+    gap: spacingX._10,
   },
   messagesContent: {
+    paddingHorizontal: spacingX._15,
     paddingTop: spacingY._20,
     paddingBottom: spacingY._10,
-    gap: spacingY._12
-
+    gap: spacingY._10,
   },
-  plusIcon: {
-    backgroundColor: colors.primary,
+  inputBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: spacingX._15,
+    marginBottom: spacingY._10,
+    backgroundColor: colors.white,
     borderRadius: radius.full,
-    padding: 8
-
-  }
-})
+    paddingHorizontal: spacingX._10,
+    paddingVertical: spacingY._7,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  textInput: {
+    flex: 1,
+    borderWidth: 0,
+    backgroundColor: "transparent",
+    paddingHorizontal: spacingX._10,
+  },
+  attachBtn: {
+    padding: 6,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral100,
+  },
+  sendBtn: {
+    paddingHorizontal: spacingX._12,
+    paddingVertical: spacingY._10,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+  },
+  previewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX._10,
+    marginHorizontal: spacingX._15,
+    marginBottom: spacingY._7,
+  },
+  previewImage: {
+    width: 60,
+    height: 60,
+    borderRadius: radius._10,
+  },
+});

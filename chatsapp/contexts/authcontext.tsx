@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
 import { connectSocket, disconnectSocket } from "@/socket/socket";
 
+ 
 
 /* 🔹 JWT payload type */
 type DecodedTokenProps = {
@@ -31,7 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserProps | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     
-    useEffect(() => {
+    useEffect(() => { 
+         
         loadToken();
     }, []);
 

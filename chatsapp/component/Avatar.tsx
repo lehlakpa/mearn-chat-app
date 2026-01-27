@@ -12,6 +12,7 @@ export const Avatar = ({
   style,
   isGroup = false,
 }: AvatarProps) => {
+  const source = getAvatarPath(uri, isGroup);
   return (
     <View
       style={[
@@ -24,7 +25,7 @@ export const Avatar = ({
       ]}
     >
         <Image style={{flex:1}}
-        source={getAvatarPath(uri,isGroup)}
+        source={typeof source === 'string' ? { uri: source } : source}
         contentFit="cover"
         transition={100}
         />
